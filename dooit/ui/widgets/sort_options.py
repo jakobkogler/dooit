@@ -77,7 +77,7 @@ class SortOptions(Widget):
 
     async def send_message(self, event: Type, *args):
         if self.parent_widget:
-            await self.parent_widget.post_message(
+            self.parent_widget.post_message_no_wait(
                 event(
                     self.parent_widget,
                     *args,

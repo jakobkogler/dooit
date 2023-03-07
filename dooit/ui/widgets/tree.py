@@ -31,7 +31,7 @@ class SearchEnabledError(Exception):
     pass
 
 
-class TreeList(Widget):
+class TreeList(Widget, can_focus=False):
     """
     An editable tree widget
     """
@@ -240,7 +240,7 @@ class TreeList(Widget):
         self.refresh()
 
     async def change_status(self, status: StatusType):
-        await self.post_message(ChangeStatus(self, status))
+        self.post_message_no_wait(ChangeStatus(self, status))
 
     async def start_search(self) -> None:
         self.filter.on_focus()
@@ -323,6 +323,8 @@ class TreeList(Widget):
     async def handle_key(self, event: events.Key) -> None:
 
         event.stop()
+        event.prevent_default()
+
         key = (
             event.character
             if (event.character and (event.character in PRINTABLE))
