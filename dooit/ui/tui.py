@@ -22,7 +22,7 @@ class Dooit(App):
         self.watcher = Watcher()
         self.current_focus = "navbar"
         self.navbar.toggle_highlight()
-        self.set_interval(1, self.poll)
+        self.set_interval(5, self.poll)
 
     async def poll(self):
         if not manager.is_locked() and self.watcher.has_modified():
