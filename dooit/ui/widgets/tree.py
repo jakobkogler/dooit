@@ -8,7 +8,7 @@ from rich.panel import Panel
 from rich.text import Text, TextType
 from rich.table import Table, box
 from textual import events
-from textual.reactive import reactive
+from textual.reactive import var
 from textual.widget import Widget
 from dooit.ui.formatters import Formatter
 from dooit.utils.keybinder import KeyBinder
@@ -38,7 +38,7 @@ class TreeList(Widget):
 
     _has_focus = False
     _rows = {}
-    current = reactive(-1)
+    current = var(-1)
     options = []
     EMPTY: List
     model_type: Type[Model] = Model
