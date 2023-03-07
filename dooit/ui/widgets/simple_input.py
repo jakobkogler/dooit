@@ -1,12 +1,8 @@
 import pyperclip
-from typing import Any, Literal
-from rich.style import StyleType
-from rich.text import Text, TextType
-from rich.box import Box
-from rich.align import AlignMethod
+from typing import Any
+from rich.text import Text
 from textual.widget import Widget
 from textual import events
-from textual.reactive import Reactive
 
 
 class SimpleInput(Widget):
@@ -16,30 +12,15 @@ class SimpleInput(Widget):
 
     cursor: str = "|"
     _cursor_position: int = 0
-    _has_focus: Reactive[bool] = Reactive(False)
+    _has_focus: bool = False
 
     def __init__(
         self,
         name: str | None = None,
         value: Any = "",
-        title: TextType = "",
-        title_align: AlignMethod = "center",
-        border_style: StyleType = "blue",
-        box: Box | None = None,
-        placeholder: Text = Text("", style="dim white"),
-        password: bool = False,
-        list: tuple[Literal["blacklist", "whitelist"], list[str]] = ("blacklist", []),
     ) -> None:
         super().__init__(name=name)
-        self.title = title
         self.value = str(value)
-        self.title_align: AlignMethod = title_align  # Silence compiler warning
-        self.border_style: StyleType = border_style
-        self.placeholder = placeholder
-        self.password = password
-        self.list = list
-        self.box = box
-
         self._cursor_position = len(self.value)
         self.width = self.size.width - 4
 
@@ -51,14 +32,10 @@ class SimpleInput(Widget):
         """
         Renders a Panel for the Text Input Box
         """
-
         if self.has_focus:
             text = self._render_text_with_cursor()
         else:
-            if len(self.value) == 0:
-                return self.placeholder
-            else:
-                text = self.value
+            text = self.value
 
         formatted_text = Text.from_markup(text)
         return formatted_text
@@ -69,15 +46,9 @@ class SimpleInput(Widget):
         """
 
         text = ""
-
-        if self.password:
-            text += "•" * self._cursor_position
-            text += self.cursor
-            text += "•" * (len(self.value) - self._cursor_position)
-        else:
-            text += self.value[: self._cursor_position]
-            text += self.cursor
-            text += self.value[self._cursor_position :]
+        text += self.value[: self._cursor_position]
+        text += self.cursor
+        text += self.value[self._cursor_position :]
 
         return text
 
@@ -94,18 +65,6 @@ class SimpleInput(Widget):
         self.value = ""
         self._cursor_position = 0
         self.refresh()
-
-    def _is_allowed(self, text: str) -> bool:
-        if self.list[0] == "whitelist":
-            for letter in text:
-                if letter not in self.list[1]:
-                    return False
-        else:
-            for letter in text:
-                if letter in self.list[1]:
-                    return False
-
-        return True
 
     async def _insert_text(self, text: str | None = None) -> None:
         """
@@ -125,12 +84,6 @@ class SimpleInput(Widget):
         )
 
         self._cursor_position += len(text)
-
-    async def on_key(self, event: events.Key) -> None:
-        """Send the key to the Input"""
-
-        await self.handle_keypress(event.key)
-        self.refresh()
 
     async def _move_cursor_backward(self, word=False, delete=False) -> None:
         """
@@ -254,5 +207,3 @@ class SimpleInput(Widget):
 
         if len(key) == 1:
             await self._insert_text(key)
-
-        self.refresh()
